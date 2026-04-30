@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import reactLogo from "./assets/react.svg"
 import viteLogo from "./assets/vite.svg"
 import heroImg from "./assets/hero.png"
@@ -9,9 +9,30 @@ import Signup from "./pages/Signup"
 import Layout from "./Layout"
 import Home from "./pages/Home"
 import NoteDetail from "./pages/NoteDetail"
+import { useSetAtom } from "jotai"
+import { currentUserAtom } from "./modules/auth/current-user.state"
+import { authRepository } from "./modules/auth/auth.repository"
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [isLoading, setIsLoading] = useState(true)
+  const setCurrentUser = useSetAtom(currentUserAtom)
+
+  const fetchCurrentUser = async () => {
+    try {
+      const user = await authRepository.getCurrentUser()
+      setCurrentUser(user)
+    } catch (error) {
+      console.log(error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchCurrentUser()
+  }, [])
+
+  if (isLoading) return <div />
 
   return (
     <BrowserRouter>
